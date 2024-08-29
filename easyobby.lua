@@ -32,7 +32,7 @@ local Section = MainTab:CreateSection("Main")
 local Slider = MainTab:CreateSlider({
    Name = "Player Speed",
    Range = {0, 100},
-   Increment = 10,
+   Increment = 5,
    Suffix = "Speed",
    CurrentValue = 16,
    Flag = "Speed", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
@@ -45,19 +45,30 @@ local Toggle = MainTab:CreateToggle({
    Name = "inf jump",
    CurrentValue = false,
    Flag = "infinite jump ", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-local plr = game:GetService('Players').LocalPlayer
-local m = plr:GetMouse()
+   Callback = function()
+_G.infinjump = not _G.infinjump
 
-m.KeyDown:Connect(function(k)
-    if _G.infinjump then
-        if k:byte() == 32 then
-            local humanoid = plr.Character and plr.Character:FindFirstChildOfClass('Humanoid')
-            if humanoid then
-                humanoid:ChangeState(Enum.HumanoidStateType.Physics) -- for jumping
-                wait() -- wait for a frame
-                humanoid:ChangeState(Enum.HumanoidStateType.Seated) -- for seated
-            end
-        end
-    end
-end)
+if _G.infinJumpStarted == nil then
+	--Ensures this only runs once to save resources
+	_G.infinJumpStarted = true
+	
+	--Notifies readiness
+	game.StarterGui:SetCore("SendNotification", {Title="Youtube Hub"; Text="Infinite Jump Activated!"; Duration=5;})
+
+	--The actual infinite jump
+	local plr = game:GetService('Players').LocalPlayer
+	local m = plr:GetMouse()
+	m.KeyDown:connect(function(k)
+		if _G.infinjump then
+			if k:byte() == 32 then
+			humanoid = game:GetService'Players'.LocalPlayer.Character:FindFirstChildOfClass('Humanoid')
+			humanoid:ChangeState('Jumping')
+			wait()
+			humanoid:ChangeState('Seated')
+		
+		end
+	end)
+end
+   end,
+})
+

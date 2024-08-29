@@ -47,18 +47,17 @@ local Toggle = MainTab:CreateToggle({
    Flag = "infinite jump ", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
    Callback = function(Value)
 local plr = game:GetService('Players').LocalPlayer
-	local m = plr:GetMouse()
-	m.KeyDown:connect(function(k)
-		if _G.infinjump then
-			if k:byte() == 32 then
-			humanoid = game:GetService'Players'.LocalPlayer.Character:FindFirstChildOfClass('Humanoid')
-			humanoid:ChangeState('Jumping')
-			wait()
-			humanoid:ChangeState('Seated')
-			end
-		end
-	end)
-end
- 
-   end,
-})
+local m = plr:GetMouse()
+
+m.KeyDown:Connect(function(k)
+    if _G.infinjump then
+        if k:byte() == 32 then
+            local humanoid = plr.Character and plr.Character:FindFirstChildOfClass('Humanoid')
+            if humanoid then
+                humanoid:ChangeState(Enum.HumanoidStateType.Physics) -- for jumping
+                wait() -- wait for a frame
+                humanoid:ChangeState(Enum.HumanoidStateType.Seated) -- for seated
+            end
+        end
+    end
+end)

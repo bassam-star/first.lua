@@ -51,7 +51,7 @@ local Toggle = MainTab:CreateToggle({
    Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
    Callback = function(Value)
    wait()
-game.workspace.Gravity = 0
+game.workspace.Gravity = 10
    end,
 })
 

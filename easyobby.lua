@@ -42,27 +42,23 @@ local Slider = MainTab:CreateSlider({
 })
 
 local Toggle = MainTab:CreateToggle({
-   Name = "Flying",
+   Name = "inf jump",
    CurrentValue = false,
-   Flag = "Fly", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Flag = "infinite jump ", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
    Callback = function(Value)
-local player = game.Players.LocalPlayer
-local character = player.Character
-local humanoid = character:WaitForChild("Humanoid")
-             
-local flying = false
- 
-local function toggleFly()
-    flying = not flying
-    humanoid.PlatformStand = flying
-    humanoid:Move(Vector3.new(0, 1000, 0))
+local plr = game:GetService('Players').LocalPlayer
+	local m = plr:GetMouse()
+	m.KeyDown:connect(function(k)
+		if _G.infinjump then
+			if k:byte() == 32 then
+			humanoid = game:GetService'Players'.LocalPlayer.Character:FindFirstChildOfClass('Humanoid')
+			humanoid:ChangeState('Jumping')
+			wait()
+			humanoid:ChangeState('Seated')
+			end
+		end
+	end)
 end
- 
-game:GetService("UserInputService").InputBegan:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.F then
-        toggleFly()
-    end
-end)
  
    end,
 })

@@ -47,7 +47,7 @@ Player.Character.Humanoid.WalkSpeed = getgenv().WalkSpeedValue;
 
 
 local Button = MainTab:CreateButton({
-   Name = "Fly",
+   Name = "inf jump",
    Callback = function(Value)
 
 --// Services

@@ -74,21 +74,64 @@ end)
 --// Main
 
 RunService.RenderStepped:Connect(function()
+    local player = Players.LocalPlayer
+    if not player or not player.Character or not player.Character:FindFirstChild("Humanoid") then
+        return
+    end
+
+    local humanoid = player.Character.Humanoid
+    
     if Flying then
-        Players.LocalPlayer.Character.Humanoid:ChangeState(4)
-        Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
+        if not Typing then
+            -- Disable gravity while flying
+            player.Character.HumanoidRootPart.Anchored = true
+            humanoid.PlatformStand = true
+            -- Set the position based on user input
+            local moveDirection = Vector3.new()
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                moveDirection = moveDirection + Vector3.new(0, 0, -1)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                moveDirection = moveDirection + Vector3.new(0, 0, 1)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                moveDirection = moveDirection + Vector3.new(-1, 0, 0)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                moveDirection = moveDirection + Vector3.new(1, 0, 0)
+            end
+            -- Normalize direction to ensure consistent movement speed
+            if moveDirection.Magnitude > 0 then
+                moveDirection = moveDirection.Unit * 50 -- Adjust the speed as needed
+            end
+            -- Update the position
+            player.Character.HumanoidRootPart.Position = player.Character.HumanoidRootPart.Position + moveDirection * RunService.RenderStepped:Wait()
+        end
+    else
+        -- Reset properties when not flying
+        if player.Character:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.Anchored = false
+        end
+        humanoid.PlatformStand = false
+        humanoid.WalkSpeed = 16
     end
 end)
 
-UserInputService.InputBegan:Connect(function(Input)
+UserInputService.InputBegan:Connect(function(Input, gameProcessedEvent)
+    if gameProcessedEvent then return end -- Ignore input if the game has already processed it
+
     if Input.KeyCode == Key then
         Flying = not Flying
         
         if not Flying then
-            Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16 
+            local player = Players.LocalPlayer
+            if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+                player.Character.Humanoid.WalkSpeed = 16 
+            end
         end
     end
 end)
+
         end,
 })
 

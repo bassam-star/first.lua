@@ -17,18 +17,6 @@ local Window = Rayfield:CreateWindow({
 local MainTab = Window:CreateTab("Home🏡", nil) -- Title, Image
 local Section = MainTab:CreateSection("Main")
 
-local Button = MainTab:CreateButton({
-   Name = "inf jump",
-   Callback = function()
-   local InfiniteJumpEnabled = true
-game:GetService("UserInputService").JumpRequest:connect(function()
-	if InfiniteJumpEnabled then
-		game:GetService"Players".LocalPlayer.Character:FindFirstChildOfClass'Humanoid':ChangeState("Jumping")
-	end
-end)
-   end,
-})
-
 
 local Slider = MainTab:CreateSlider({
    Name = "PlayerSpeed",

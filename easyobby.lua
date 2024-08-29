@@ -28,3 +28,21 @@ local Window = Rayfield:CreateWindow({
 
 local MainTab = Window:CreateTab("Home🏡", nil) -- Title, Image
 local Section = MainTab:CreateSection("Main")
+
+
+local Slider = Tab:CreateSlider({
+   Name = "PlayerSpeed",
+   Range = {0, 100},
+   Increment = 10,
+   Suffix = "Speed",
+   CurrentValue = 10,
+   Flag = "SpeedSlider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+   getgenv().WalkSpeedValue = 100; --set your desired walkspeed here
+local Player = game:service'Players'.LocalPlayer;
+Player.Character.Humanoid:GetPropertyChangedSignal'WalkSpeed':Connect(function()
+Player.Character.Humanoid.WalkSpeed = getgenv().WalkSpeedValue;
+end)
+Player.Character.Humanoid.WalkSpeed = getgenv().WalkSpeedValue; 
+   end,
+})

@@ -1,74 +1,51 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "SweetScripts | EasyObby",
-   LoadingTitle = "SweetGames",
-   LoadingSubtitle = "by Bassam",
+   Name = "Venox Hub",
+   LoadingTitle = "Venox Scripts",
+   LoadingSubtitle = "by Iamokplees",
    ConfigurationSaving = {
       Enabled = true,
       FolderName = nil, -- Create a custom folder for your hub/game
-      FileName = "Big Hub"
-   },
-   Discord = {
-      Enabled = false,
-      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
-   },
-   KeySystem = false, -- Set this to true to use our key system
-   KeySettings = {
-      Title = "Untitled",
-      Subtitle = "Key System",
-      Note = "No method of obtaining the key is provided",
-      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+      FileName = "Big Hub
    }
 })
 
-local MainTab = Window:CreateTab("Home🏡") -- Title, Image
+local MainTab = Window:CreateTab("Home🏡", nil) -- Title, Image
 local Section = MainTab:CreateSection("Main")
 
+local Button = MainTab:CreateButton({
+   Name = "inf jump",
+   Callback = function()
+   local InfiniteJumpEnabled = true
+game:GetService("UserInputService").JumpRequest:connect(function()
+	if InfiniteJumpEnabled then
+		game:GetService"Players".LocalPlayer.Character:FindFirstChildOfClass'Humanoid':ChangeState("Jumping")
+	end
+end)
+   end,
+})
+
+
 local Slider = MainTab:CreateSlider({
-   Name = "Player Speed",
+   Name = "PlayerSpeed",
    Range = {0, 100},
    Increment = 5,
    Suffix = "Speed",
    CurrentValue = 16,
-   Flag = "Speed", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Flag = "SpeedSlider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
    Callback = function(Value)
-  game:GetService("Players").LocalPlayer.Character.Humanoid.WalkSpeed = 100
+ getgenv().WalkSpeedValue = 100; --set your desired walkspeed here
+local Player = game:service'Players'.LocalPlayer;
+Player.Character.Humanoid:GetPropertyChangedSignal'WalkSpeed':Connect(function()
+Player.Character.Humanoid.WalkSpeed = getgenv().WalkSpeedValue;
+end)
+Player.Character.Humanoid.WalkSpeed = getgenv().WalkSpeedValue; 
    end,
 })
 
-local Toggle = MainTab:CreateToggle({
-   Name = "inf jump",
-   CurrentValue = false,
-   Flag = "infinite jump ", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function()
-_G.infinjump = not _G.infinjump
+local Tab = Window:CreateTab("Credit",nil) -- Title, Image
 
-if _G.infinJumpStarted == nil then
-	--Ensures this only runs once to save resources
-	_G.infinJumpStarted = true
-	
-	--Notifies readiness
-	game.StarterGui:SetCore("SendNotification", {Title="Youtube Hub"; Text="Infinite Jump Activated!"; Duration=5;})
-
-	--The actual infinite jump
-	local plr = game:GetService('Players').LocalPlayer
-	local m = plr:GetMouse()
-	m.KeyDown:connect(function(k)
-		if _G.infinjump then
-			if k:byte() == 32 then
-			humanoid = game:GetService'Players'.LocalPlayer.Character:FindFirstChildOfClass('Humanoid')
-			humanoid:ChangeState('Jumping')
-			wait()
-			humanoid:ChangeState('Seated')
-		
-		end
-	end)
-end
-   end,
-})
-
+local Section = Tab:CreateSection("")
+local Label = Tab:CreateLabel("made by Iamokplees")
+local Paragraph = Tab:CreateParagraph({Title = "", Content = "This is my first cript iam sorry if there are bugs😔"})

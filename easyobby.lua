@@ -49,141 +49,47 @@ Player.Character.Humanoid.WalkSpeed = getgenv().WalkSpeedValue;
 local Button = MainTab:CreateButton({
    Name = "Fly",
    Callback = function(Value)
+
 --// Services
 
+local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
 
 --// Variables
 
-local Key = Enum.KeyCode.E
-local Flying = false
-local Typing = false
-local JumpCount = 0
-local MaxJumps = 2
-local FlySpeed = 50 -- Adjust flying speed here
+local JumpKey = Enum.KeyCode.Space
+local JumpCooldown = 0.1 -- Time between jumps in seconds (adjust as needed)
+local LastJumpTime = 0
 
---// Typing Check
+--// Infinite Jump Function
 
-UserInputService.TextBoxFocused:Connect(function()
-    Typing = true
-end)
-
-UserInputService.TextBoxFocusReleased:Connect(function()
-    Typing = false
-end)
-
---// Main
-
-RunService.RenderStepped:Connect(function()
-    local player = Players.LocalPlayer
-    if not player or not player.Character or not player.Character:FindFirstChild("Humanoid") then
-        return
-    end
-
-    local humanoid = player.Character.Humanoid
-    local hrp = player.Character:FindFirstChild("HumanoidRootPart")
-
-    if not hrp then
-        return
-    end
-
-    if Flying then
-        if not Typing then
-            -- Disable gravity and allow manual movement
-            hrp.Anchored = true
-            humanoid.PlatformStand = true
-            
-            -- Handle flying movement
-            local moveDirection = Vector3.new()
-            if UserInputService:IsKeyDown(Enum.KeyCode.W) then
-                moveDirection = moveDirection + Vector3.new(0, 0, -1)
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.S) then
-                moveDirection = moveDirection + Vector3.new(0, 0, 1)
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.A) then
-                moveDirection = moveDirection + Vector3.new(-1, 0, 0)
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.D) then
-                moveDirection = moveDirection + Vector3.new(1, 0, 0)
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-                moveDirection = moveDirection + Vector3.new(0, 1, 0)
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
-                moveDirection = moveDirection + Vector3.new(0, -1, 0)
-            end
-            -- Normalize direction to ensure consistent movement speed
-            if moveDirection.Magnitude > 0 then
-                moveDirection = moveDirection.Unit * FlySpeed
-            end
-            -- Update the position
-            hrp.Position = hrp.Position + moveDirection * RunService.RenderStepped:Wait()
+local function onCharacterAdded(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    local hrp = character:WaitForChild("HumanoidRootPart")
+    
+    humanoid:GetPropertyChangedSignal("Jump"):Connect(function()
+        if humanoid.Jump and tick() - LastJumpTime >= JumpCooldown then
+            -- Trigger the jump
+            humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+            humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
+            LastJumpTime = tick()
         end
-    else
-        -- Reset properties when not flying
-        if hrp then
-            hrp.Anchored = false
-        end
-        humanoid.PlatformStand = false
-        humanoid.WalkSpeed = 16
+    end)
+end
+
+--// Player Added Event
+
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(onCharacterAdded)
+end)
+
+-- Handle existing players in case script is added during gameplay
+for _, player in pairs(Players:GetPlayers()) do
+    if player.Character then
+        onCharacterAdded(player.Character)
     end
-end)
-
-UserInputService.InputBegan:Connect(function(Input, gameProcessedEvent)
-    if gameProcessedEvent then return end -- Ignore input if the game has already been processed
-
-    local player = Players.LocalPlayer
-    if not player or not player.Character or not player.Character:FindFirstChild("Humanoid") then
-        return
-    end
-
-    local humanoid = player.Character.Humanoid
-
-    -- Check for jump
-    if Input.KeyCode == Enum.KeyCode.Space then
-        if humanoid:GetState() == Enum.HumanoidStateType.Physics or humanoid:GetState() == Enum.HumanoidStateType.Freefall then
-            JumpCount = JumpCount + 1
-        end
-
-        if JumpCount >= MaxJumps then
-            if not Flying then
-                Flying = true
-                JumpCount = 0 -- Reset jump count after starting to fly
-            end
-        end
-    end
-
-    -- Toggle flying mode with the key
-    if Input.KeyCode == Key then
-        Flying = not Flying
-        
-        if not Flying then
-            local hrp = player.Character:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                hrp.Anchored = false
-            end
-            humanoid.PlatformStand = false
-            humanoid.WalkSpeed = 16
-            JumpCount = 0 -- Reset jump count when flying is disabled
-        end
-    end
-end)
-
--- Reset jump count when touching the ground
-Players.LocalPlayer.Character.Humanoid.Jumping:Connect(function()
-    JumpCount = 0
-end)
-
-Players.LocalPlayer.Character.Humanoid.FreeFalling:Connect(function()
-    JumpCount = 0
-end)
-
-Players.LocalPlayer.Character.Humanoid.Seated:Connect(function()
-    JumpCount = 0
-end)
+end
 
         end,
 })

@@ -60,6 +60,9 @@ local Players = game:GetService("Players")
 local Key = Enum.KeyCode.E
 local Flying = false
 local Typing = false
+local JumpCount = 0
+local MaxJumps = 2
+local FlySpeed = 50 -- Adjust flying speed here
 
 --// Typing Check
 
@@ -80,13 +83,19 @@ RunService.RenderStepped:Connect(function()
     end
 
     local humanoid = player.Character.Humanoid
-    
+    local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+
+    if not hrp then
+        return
+    end
+
     if Flying then
         if not Typing then
-            -- Disable gravity while flying
-            player.Character.HumanoidRootPart.Anchored = true
+            -- Disable gravity and allow manual movement
+            hrp.Anchored = true
             humanoid.PlatformStand = true
-            -- Set the position based on user input
+            
+            -- Handle flying movement
             local moveDirection = Vector3.new()
             if UserInputService:IsKeyDown(Enum.KeyCode.W) then
                 moveDirection = moveDirection + Vector3.new(0, 0, -1)
@@ -100,17 +109,23 @@ RunService.RenderStepped:Connect(function()
             if UserInputService:IsKeyDown(Enum.KeyCode.D) then
                 moveDirection = moveDirection + Vector3.new(1, 0, 0)
             end
+            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                moveDirection = moveDirection + Vector3.new(0, 1, 0)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+                moveDirection = moveDirection + Vector3.new(0, -1, 0)
+            end
             -- Normalize direction to ensure consistent movement speed
             if moveDirection.Magnitude > 0 then
-                moveDirection = moveDirection.Unit * 50 -- Adjust the speed as needed
+                moveDirection = moveDirection.Unit * FlySpeed
             end
             -- Update the position
-            player.Character.HumanoidRootPart.Position = player.Character.HumanoidRootPart.Position + moveDirection * RunService.RenderStepped:Wait()
+            hrp.Position = hrp.Position + moveDirection * RunService.RenderStepped:Wait()
         end
     else
         -- Reset properties when not flying
-        if player.Character:FindFirstChild("HumanoidRootPart") then
-            player.Character.HumanoidRootPart.Anchored = false
+        if hrp then
+            hrp.Anchored = false
         end
         humanoid.PlatformStand = false
         humanoid.WalkSpeed = 16
@@ -118,18 +133,56 @@ RunService.RenderStepped:Connect(function()
 end)
 
 UserInputService.InputBegan:Connect(function(Input, gameProcessedEvent)
-    if gameProcessedEvent then return end -- Ignore input if the game has already processed it
+    if gameProcessedEvent then return end -- Ignore input if the game has already been processed
 
+    local player = Players.LocalPlayer
+    if not player or not player.Character or not player.Character:FindFirstChild("Humanoid") then
+        return
+    end
+
+    local humanoid = player.Character.Humanoid
+
+    -- Check for jump
+    if Input.KeyCode == Enum.KeyCode.Space then
+        if humanoid:GetState() == Enum.HumanoidStateType.Physics or humanoid:GetState() == Enum.HumanoidStateType.Freefall then
+            JumpCount = JumpCount + 1
+        end
+
+        if JumpCount >= MaxJumps then
+            if not Flying then
+                Flying = true
+                JumpCount = 0 -- Reset jump count after starting to fly
+            end
+        end
+    end
+
+    -- Toggle flying mode with the key
     if Input.KeyCode == Key then
         Flying = not Flying
         
         if not Flying then
-            local player = Players.LocalPlayer
-            if player and player.Character and player.Character:FindFirstChild("Humanoid") then
-                player.Character.Humanoid.WalkSpeed = 16 
+            local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                hrp.Anchored = false
             end
+            humanoid.PlatformStand = false
+            humanoid.WalkSpeed = 16
+            JumpCount = 0 -- Reset jump count when flying is disabled
         end
     end
+end)
+
+-- Reset jump count when touching the ground
+Players.LocalPlayer.Character.Humanoid.Jumping:Connect(function()
+    JumpCount = 0
+end)
+
+Players.LocalPlayer.Character.Humanoid.FreeFalling:Connect(function()
+    JumpCount = 0
+end)
+
+Players.LocalPlayer.Character.Humanoid.Seated:Connect(function()
+    JumpCount = 0
 end)
 
         end,
